@@ -6,8 +6,7 @@ Nourish is a full-stack nutrition tracking application designed to help users lo
 
 - **Live Website:** [Nourish](https://nourish-frontend-phi.vercel.app/)
 - **Backend:** [Nourish API](https://nourish-back.onrender.com)
-- **GitHub:** [Source Code](https://github.com/Deepikakolli4/Nutrino)
-- **Demo Video:** [Watch Nourish Demo](docs/nourish-demo.mp4)
+- **Demo Video:** [Watch Nourish Demo](https://drive.google.com/file/d/1heC0Fi_AX2x9rBER52hsubuguu_-y5wl/view?usp=sharing)
 
 ## ✨ Features
 
