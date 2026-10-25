@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera, Plus, Flame, MessageCircle, ArrowRight } from "lucide-react";
 
-import "./Dashboard.css";
+import "./DashBoard.css";
 import api from "../../api/axios";
 
 const MACRO_CONFIG = [
