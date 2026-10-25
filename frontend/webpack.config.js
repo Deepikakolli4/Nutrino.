@@ -1,3 +1,4 @@
+
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
@@ -7,6 +8,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "bundle.js",
+    assetModuleFilename: "assets/[name][ext]",
     clean: true
   },
 
@@ -32,6 +34,13 @@ module.exports = {
       {
         test: /\.css$/,
         use: ["style-loader", "css-loader"]
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg|webp|ico)$/i,
+        type: "asset/resource",
+        generator: {
+          filename: "assets/[name][ext]"
+        }
       }
     ]
   },

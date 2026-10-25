@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Citrus, Eye, EyeOff, ArrowRight } from "lucide-react";
 import "./Login.css";
 import api from "../../api/axios";
+import backgroundImage from "../../assets/background.jpg";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ export default function Login() {
       <section
         className="auth-visual"
         style={{
-          "--auth-background-image": "url('/background.jpg')",
+          "--auth-background-image": `url("${backgroundImage}")`,
         }}
       >
         <Link to="/dashboard" className="auth-brand">
