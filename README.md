@@ -1,5 +1,5 @@
 # 🥗 Nourish — Personal Calorie Tracker
- 
+
 Nourish is a full-stack nutrition tracking application designed to help users log meals, monitor calorie intake and macronutrients, set personalized health goals, and visualize nutrition trends with AI-powered assistance.
 
 ## 🌐 Live Application
@@ -24,20 +24,16 @@ Nourish is a full-stack nutrition tracking application designed to help users lo
 
 | Layer | Technologies |
 |---|---|
-| Frontend | React.js, JavaScript, HTML, CSS |
-| Build & Routing | Webpack, Babel, React Router |
+| Frontend | React.js, JavaScript, HTML, CSS, React Router |
 | Backend | Java, Spring Boot, Spring Security |
 | Database | MongoDB Atlas |
 | Authentication | JWT |
 | API & Visualization | REST APIs, Axios, Recharts |
-| AI Integration | OpenAI / Gemini APIs |
+| AI Integration | Gemini APIs |
 | Deployment | Vercel, Render |
 | Version Control | Git, GitHub |
 
 ## 🏗️ System Architecture
-
-Nourish follows a client-server architecture integrating the frontend, backend REST API, database, AI services, external APIs, and deployment infrastructure.
-
 <p align="center">
   <img src="docs/architecture.png" alt="Nourish System Architecture" width="100%" />
 </p>
@@ -101,13 +97,6 @@ Webpack generates the production files in `frontend/dist/`.
 | Database | MongoDB Atlas |
 
 Configure production environment variables, database connectivity, authentication settings, and CORS origins before deployment. Never commit secrets or API keys to source control.
-
-## 🔮 Future Enhancements
-
-- AI-powered food image and nutrition-label analysis.
-- Bulk food diary import from PDF documents.
-- Advanced nutrition insights and personalized recommendations.
-- Expanded automated testing and API documentation.
 
 ## 📄 License
 
