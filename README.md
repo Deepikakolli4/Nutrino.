@@ -1,4 +1,4 @@
-# 🥗 Nourish — Personal Calorie Tracker & AI Nutrition Coach
+# 🥗 Nourish — Personal Calorie Tracker 
 
 <p align="center">
   <strong>Eat well. Feel your best.</strong>
