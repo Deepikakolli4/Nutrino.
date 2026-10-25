@@ -1,0 +1,404 @@
+/* Nourish Health Goals page */
+
+.health-goals-page {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 4px 0 28px;
+  color: #edf0e8;
+}
+
+.health-goals-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+.health-goals-eyebrow {
+  margin: 0 0 12px;
+  color: #b4f34a;
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+}
+
+.health-goals-header h1 span {
+  color: #b4f34a;
+}
+.health-goals-header h1 {
+  margin: 0 0 8px;
+  color: #f0f3ed;
+  font-size: clamp(32px, 3vw, 46px);
+  font-weight: 750;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+}
+
+/* Subtitle and other header paragraphs */
+.health-goals-header p:not(.health-goals-eyebrow) {
+  margin: 0;
+  color: #929d90;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Green eyebrow label */
+.health-goals-header .health-goals-eyebrow {
+  margin: 0 0 12px;
+  color: #b4f34a;
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+}
+
+/* Green Goals. heading */
+.health-goals-header h1 span {
+  color: #b4f34a;
+}
+
+.health-save-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 18px;
+  background: #a8f000;
+  color: #101a08;
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.health-save-button:hover {
+  background: #b7ff19;
+  box-shadow: 0 0 22px rgba(168, 240, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.health-goals-top-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.health-goal-card {
+  min-width: 0;
+  padding: 34px 35px;
+  border: 1px solid #223128;
+  border-radius: 30px;
+  background: #101b15;
+}
+
+.health-card-title {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 36px;
+}
+
+.health-card-title h2 {
+  margin: 0;
+  color: #edf0e8;
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+}
+
+.health-goal-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  border-radius: 50%;
+  background: #18271d;
+  color: #a8f000;
+}
+
+.health-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.health-goals-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.health-goals-fieldset:disabled {
+  opacity: 0.72;
+}
+
+.health-save-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.health-save-spinner {
+  flex-shrink: 0;
+  animation: health-goals-spin 1s linear infinite;
+}
+
+.health-goals-feedback {
+  display: none;
+}
+
+.health-goals-feedback.visible {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@keyframes health-goals-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.health-goals-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-bottom: 24px;
+}
+
+@media (max-width: 600px) {
+  .health-goals-actions {
+    justify-content: stretch;
+  }
+
+  .health-goals-actions .health-save-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+.health-field > span {
+  color: #a0aa9e;
+  font-size: 14px;
+}
+.health-goals-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-bottom: 24px;
+}
+
+@media (max-width: 600px) {
+  .health-goals-actions {
+    justify-content: stretch;
+  }
+
+  .health-goals-actions .health-save-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.health-field input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid #223128;
+  border-radius: 17px;
+  outline: none;
+  background: #111c16;
+  color: #edf0e8;
+  font: inherit;
+  font-size: 16px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.health-field input:focus {
+  border-color: #a8f000;
+  background: #142018;
+  box-shadow: 0 0 0 3px rgba(168, 240, 0, 0.09);
+}
+
+.health-calorie-field {
+  max-width: 242px;
+}
+
+.health-calorie-field input {
+  border-color: #75a900;
+  background: #182519;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.health-goal-note {
+  margin-top: 24px;
+  padding: 16px 20px;
+  border-radius: 24px;
+  background: #18251e;
+  color: #a3ada1;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.health-goal-note strong {
+  color: #edf0e8;
+  white-space: nowrap;
+}
+
+.health-macro-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.health-macro-fields .health-protein-input {
+  color: #ff7066;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.health-macro-fields .health-carbs-input {
+  color: #ffbd42;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.health-macro-fields .health-fat-input {
+  color: #42d0d1;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.health-helper-text {
+  margin: 26px 0 0;
+  color: #9ba69a;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.health-weight-card {
+  padding: 34px 35px 36px;
+}
+
+.health-weight-card .health-card-title {
+  margin-bottom: 30px;
+}
+
+.health-weight-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr minmax(220px, 1fr);
+  align-items: end;
+  gap: 20px;
+}
+
+.health-weight-summary {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 94px;
+  padding: 16px 20px;
+  border-radius: 25px;
+  background: #18251e;
+}
+
+.health-weight-summary > span {
+  margin-bottom: 5px;
+  color: #a8b6a7;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.health-weight-summary strong {
+  color: #a8f000;
+  font-size: 30px;
+  font-weight: 750;
+  letter-spacing: -1px;
+  line-height: 1.15;
+}
+
+.health-goals-feedback {
+  min-height: 20px;
+  margin-top: 12px;
+  color: #a8f000;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.health-goals-feedback.visible {
+  opacity: 1;
+}
+
+@media (max-width: 1000px) {
+  .health-goals-top-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .health-weight-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .health-weight-summary {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .health-goals-header {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-bottom: 24px;
+  }
+
+  .health-goals-header h1 {
+    font-size: 34px;
+  }
+
+  .health-goal-card,
+  .health-weight-card {
+    padding: 24px 20px;
+    border-radius: 24px;
+  }
+
+  .health-card-title {
+    gap: 11px;
+    margin-bottom: 26px;
+  }
+
+  .health-card-title h2 {
+    font-size: 19px;
+  }
+
+  .health-macro-fields,
+  .health-weight-fields {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .health-weight-summary {
+    grid-column: auto;
+  }
+
+  .health-calorie-field {
+    max-width: none;
+  }
+}
+.health-goals-header h1 span {
+  color: #b4f34a;
+}

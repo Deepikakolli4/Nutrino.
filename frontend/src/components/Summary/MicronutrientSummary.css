@@ -1,0 +1,114 @@
+.micro-summary {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.micro-summary h2 {
+  margin-bottom: 8px;
+}
+
+.micro-summary-content {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.95fr) minmax(250px, 1.05fr);
+  align-items: center;
+  gap: 24px;
+  padding: 12px 0;
+}
+
+.micro-ring-chart {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.micro-ring-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.micro-ring-progress {
+  transition: stroke-dashoffset 700ms ease;
+}
+
+.micro-summary-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+  min-width: 0;
+}
+
+.micro-legend-row {
+  display: grid;
+  grid-template-columns: minmax(105px, 1fr) minmax(55px, auto) 48px;
+  align-items: center;
+  gap: 12px;
+  color: #edf0e8;
+  font-size: 14px;
+}
+
+.micro-legend-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.micro-legend-name i {
+  display: inline-block;
+  flex: 0 0 11px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+
+.micro-legend-name span {
+  overflow-wrap: anywhere;
+}
+
+.micro-legend-amount {
+  color: #929d90;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.micro-legend-percent {
+  color: #edf0e8;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.micro-summary-note {
+  margin-top: 12px;
+  color: #929d90;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+@media (max-width: 680px) {
+  .micro-summary-content {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .micro-ring-chart {
+    max-width: 280px;
+  }
+
+  .micro-summary-legend {
+    gap: 15px;
+  }
+
+  .micro-legend-row {
+    grid-template-columns: minmax(105px, 1fr) minmax(55px, auto) 44px;
+    gap: 8px;
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .micro-ring-progress {
+    transition: none;
+  }
+}

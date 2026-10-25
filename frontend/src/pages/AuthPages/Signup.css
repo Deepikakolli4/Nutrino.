@@ -1,0 +1,123 @@
+@import "./Login.css";
+
+/* Signup page refinements */
+
+.signup-form-side {
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+.signup-form-container {
+  max-width: 450px;
+}
+
+.signup-form-container .auth-heading {
+  margin-bottom: 24px;
+}
+
+.signup-form-container .auth-heading h2 {
+  font-size: clamp(30px, 2.7vw, 38px);
+}
+
+.signup-form {
+  gap: 16px;
+}
+
+.signup-form .auth-field {
+  gap: 8px;
+}
+
+.signup-form .auth-field input {
+  height: 46px;
+}
+
+.signup-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+  margin-top: 34px;
+}
+
+.signup-benefits > div {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: #c1cbbd;
+  font-size: 14px;
+}
+
+.signup-benefits svg {
+  flex-shrink: 0;
+  color: #b4f34a;
+}
+
+.signup-terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 1px;
+  color: #9ba69a;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.signup-terms input {
+  flex-shrink: 0;
+  margin-top: 3px;
+  accent-color: #b4f34a;
+}
+
+.signup-form-container .auth-switch {
+  margin-top: 22px;
+}
+
+.signup-form-container .auth-legal {
+  margin-top: 22px;
+}
+.auth-visual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100%;
+  overflow: hidden;
+  padding: 42px clamp(28px, 5vw, 76px);
+  border-right: 1px solid #223128;
+  background:
+    linear-gradient(180deg, rgba(5, 13, 9, 0.3), rgba(5, 13, 9, 0.82)),
+    var(--auth-background-image) center / cover no-repeat;
+}
+
+.auth-visual::after {
+  position: absolute;
+  right: -120px;
+  bottom: -160px;
+  width: 440px;
+  height: 440px;
+  border: 1px solid rgba(180, 243, 74, 0.1);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 40px rgba(180, 243, 74, 0.025),
+    0 0 0 80px rgba(180, 243, 74, 0.02);
+  content: "";
+  pointer-events: none;
+}
+
+@media (max-width: 650px) {
+  .signup-form-side {
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  .signup-form-container .auth-mobile-brand {
+    margin-bottom: 28px;
+  }
+
+  .signup-form-container .auth-heading h2 {
+    font-size: 32px;
+  }
+
+  .signup-benefits {
+    display: none;
+  }
+}
