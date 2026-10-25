@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import AppLayout from "./components/layout/AppLayout";
-import Dashboard from "./pages/DashBoard/Dashboard";
+import Dashboard from "./pages/DashBoard/DashBoard";
 import LogMeal from "./pages/LogMeal/LogMeal";
 import FoodEntries from "./pages/FoodEntries/FoodEntries";
 import Reports from "./pages/Reports/Reports";

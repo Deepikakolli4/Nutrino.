@@ -1,10 +1,21 @@
+
 import { useEffect, useMemo, useState } from "react";
-import { Flame, Target, Scale, Save, LoaderCircle } from "lucide-react";
+import {
+  Flame,
+  Target,
+  Scale,
+  Save,
+  LoaderCircle,
+  Activity,
+} from "lucide-react";
+
 import {
   getHealthGoals,
   createHealthGoals,
   updateHealthGoals,
 } from "../../api/healthGoals";
+
+import { getFoodEntries } from "../../api/foodEntries";
 import "./health-goals.css";
 
 const initialGoals = {
@@ -14,6 +25,13 @@ const initialGoals = {
   fat: "70",
   currentWeight: "74.2",
   targetWeight: "70",
+};
+
+const emptyIntake = {
+  calories: 0,
+  protein: 0,
+  carbs: 0,
+  fat: 0,
 };
 
 function mapApiGoalsToForm(goal) {
@@ -65,15 +83,96 @@ function validateGoals(goals) {
   return "";
 }
 
+function getLocalDateString() {
+  const today = new Date();
+
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function calculateIntake(entries) {
+  return entries.reduce(
+    (total, entry) => ({
+      calories: total.calories + (Number(entry.calories) || 0),
+      protein: total.protein + (Number(entry.protein) || 0),
+      carbs: total.carbs + (Number(entry.carbs) || 0),
+      fat: total.fat + (Number(entry.fat) || 0),
+    }),
+    { ...emptyIntake },
+  );
+}
+
+function ProgressItem({ label, current, target, unit, color }) {
+  const percentage =
+    target > 0 ? (current / target) * 100 : 0;
+
+  const displayedPercentage = Math.round(percentage);
+  const remaining = Math.max(target - current, 0);
+
+  const formatNumber = (value) =>
+    Number(value.toFixed(1)).toLocaleString();
+
+  return (
+    <div className="health-progress-item">
+      <div className="health-progress-label">
+        <span>{label}</span>
+        <strong>{displayedPercentage}%</strong>
+      </div>
+
+      <div
+        className="health-progress-track"
+        role="progressbar"
+        aria-label={`${label} daily goal progress`}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.min(displayedPercentage, 100)}
+      >
+        <div
+          className={`health-progress-fill ${color}`}
+          style={{ width: `${Math.min(percentage, 100)}%` }}
+        />
+      </div>
+
+      <div className="health-progress-values">
+        <strong>
+          {formatNumber(current)} / {formatNumber(target)} {unit}
+        </strong>
+
+        <span>
+          {remaining > 0
+            ? `${formatNumber(remaining)} ${unit} remaining`
+            : "Target reached"}
+        </span>
+      </div>
+
+      {percentage > 100 && (
+        <p className="health-progress-over">
+          Target exceeded by {formatNumber(current - target)} {unit}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function HealthGoals() {
   const [goals, setGoals] = useState(initialGoals);
   const [savedGoals, setSavedGoals] = useState(null);
   const [hasExistingGoal, setHasExistingGoal] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const [todayIntake, setTodayIntake] = useState({ ...emptyIntake });
+  const [progressLoading, setProgressLoading] = useState(true);
+  const [progressError, setProgressError] = useState("");
+
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
 
+  // Load saved health goals.
   useEffect(() => {
     let cancelled = false;
 
@@ -100,7 +199,9 @@ export default function HealthGoals() {
           setSavedGoals(null);
           setHasExistingGoal(false);
         } else {
-          setError(apiError.message || "Unable to load your health goals.");
+          setError(
+            apiError.message || "Unable to load your health goals.",
+          );
         }
       } finally {
         if (!cancelled) {
@@ -110,6 +211,55 @@ export default function HealthGoals() {
     }
 
     loadGoals();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Load today's logged nutrition.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadTodayIntake() {
+      setProgressLoading(true);
+      setProgressError("");
+
+      try {
+        const today = getLocalDateString();
+
+        const response = await getFoodEntries({
+          startDate: today,
+          endDate: today,
+          page: 0,
+          size: 100,
+        });
+
+        const entries = Array.isArray(response)
+          ? response
+          : Array.isArray(response?.content)
+            ? response.content
+            : [];
+
+        const totals = calculateIntake(entries);
+
+        if (!cancelled) {
+          setTodayIntake(totals);
+        }
+      } catch (apiError) {
+        if (!cancelled) {
+          setProgressError(
+            apiError.message || "Unable to load today's nutrition.",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setProgressLoading(false);
+        }
+      }
+    }
+
+    loadTodayIntake();
 
     return () => {
       cancelled = true;
@@ -128,11 +278,15 @@ export default function HealthGoals() {
   const targetWeight = Number(goals.targetWeight) || 0;
   const weightDifference = currentWeight - targetWeight;
   const weightToGo = Math.abs(weightDifference);
-  const calorieDifference = macroCalories - (Number(goals.calories) || 0);
+
+  const calorieDifference =
+    macroCalories - (Number(goals.calories) || 0);
 
   const isSaved =
     savedGoals !== null &&
-    Object.keys(goals).every((key) => goals[key] === savedGoals[key]);
+    Object.keys(goals).every(
+      (key) => goals[key] === savedGoals[key],
+    );
 
   function updateGoal(field, value) {
     setGoals((previous) => ({
@@ -173,6 +327,7 @@ export default function HealthGoals() {
       setGoals(formGoals);
       setSavedGoals(formGoals);
       setHasExistingGoal(true);
+
       setNotice("Your health goals have been saved successfully.");
     } catch (apiError) {
       setError(
@@ -189,25 +344,123 @@ export default function HealthGoals() {
       <header className="health-goals-header">
         <div>
           <p className="health-goals-eyebrow">Targets</p>
+
           <h1>
             Health <span>Goals.</span>
           </h1>
+
           <p>
-            Personalize your daily targets. Every screen recalibrates to these
-            numbers.
+            Personalize your daily targets. Every screen recalibrates
+            to these numbers.
           </p>
         </div>
       </header>
 
+      {/* YOUR PROGRESS */}
+      <section className="health-progress-card">
+        <div className="health-progress-heading">
+          <span className="health-goal-icon">
+            <Activity size={22} />
+          </span>
+
+          <div>
+            <h2>Your Progress</h2>
+            <p>
+              Today's nutrition compared with your saved goals
+            </p>
+          </div>
+        </div>
+
+        {progressLoading ? (
+          <div className="health-progress-message" role="status">
+            <LoaderCircle
+              size={18}
+              className="health-save-spinner"
+            />
+            Loading today's nutrition...
+          </div>
+        ) : progressError ? (
+          <div className="health-progress-message" role="alert">
+            {progressError}
+          </div>
+        ) : loading ? (
+          <p className="health-progress-message">
+            Loading your saved goals...
+          </p>
+        ) : !hasExistingGoal ? (
+          <div className="health-progress-empty">
+            <Target size={24} />
+            <p>
+              Save your health goals below to start tracking your
+              daily nutrition progress.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="health-progress-date">
+              Today's logged food
+            </div>
+
+            <div className="health-progress-grid">
+              <ProgressItem
+                label="Calories"
+                current={todayIntake.calories}
+                target={Number(goals.calories) || 0}
+                unit="kcal"
+                color="calories"
+              />
+
+              <ProgressItem
+                label="Protein"
+                current={todayIntake.protein}
+                target={Number(goals.protein) || 0}
+                unit="g"
+                color="protein"
+              />
+
+              <ProgressItem
+                label="Carbohydrates"
+                current={todayIntake.carbs}
+                target={Number(goals.carbs) || 0}
+                unit="g"
+                color="carbs"
+              />
+
+              <ProgressItem
+                label="Fat"
+                current={todayIntake.fat}
+                target={Number(goals.fat) || 0}
+                unit="g"
+                color="fat"
+              />
+            </div>
+
+            <p className="health-progress-footnote">
+              Progress is calculated from your logged food entries
+              for today. 
+            </p>
+          </>
+        )}
+      </section>
+
       {loading && (
-        <div className="health-goals-feedback visible" role="status">
-          <LoaderCircle size={17} className="health-save-spinner" />
+        <div
+          className="health-goals-feedback visible"
+          role="status"
+        >
+          <LoaderCircle
+            size={17}
+            className="health-save-spinner"
+          />
           Loading your saved goals...
         </div>
       )}
 
       {error && (
-        <div className="health-goals-feedback visible" role="alert">
+        <div
+          className="health-goals-feedback visible"
+          role="alert"
+        >
           {error}
         </div>
       )}
@@ -243,7 +496,9 @@ export default function HealthGoals() {
 
               <div className="health-goal-note">
                 Macros below currently sum to{" "}
-                <strong>{macroCalories.toLocaleString()} kcal</strong>
+                <strong>
+                  {macroCalories.toLocaleString()} kcal
+                </strong>
                 {" — "}
                 {Math.abs(calorieDifference) <= 100
                   ? "well aligned with your calorie target."
@@ -303,14 +558,17 @@ export default function HealthGoals() {
                     max="1000"
                     step="any"
                     value={goals.fat}
-                    onChange={(event) => updateGoal("fat", event.target.value)}
+                    onChange={(event) =>
+                      updateGoal("fat", event.target.value)
+                    }
                     required
                   />
                 </label>
               </div>
 
               <p className="health-helper-text">
-                Protein and carbs contribute 4 kcal per gram; fat contributes 9.
+                Protein and carbs contribute 4 kcal per gram; fat
+                contributes 9.
               </p>
             </section>
           </div>
@@ -369,13 +627,20 @@ export default function HealthGoals() {
         </fieldset>
 
         <div
-          className={`health-goals-feedback ${notice || (!isSaved && !loading && !error) ? "visible" : ""}`}
+          className={`health-goals-feedback ${
+            notice || (!isSaved && !loading && !error)
+              ? "visible"
+              : ""
+          }`}
           role="status"
           aria-live="polite"
         >
           {notice ||
-            (!loading && !error && !isSaved ? "You have unsaved changes." : "")}
+            (!loading && !error && !isSaved
+              ? "You have unsaved changes."
+              : "")}
         </div>
+
         <div className="health-goals-actions">
           <button
             className="health-save-button"
@@ -383,10 +648,14 @@ export default function HealthGoals() {
             disabled={loading || saving}
           >
             {saving ? (
-              <LoaderCircle size={18} className="health-save-spinner" />
+              <LoaderCircle
+                size={18}
+                className="health-save-spinner"
+              />
             ) : (
               <Save size={18} />
             )}
+
             {saving
               ? "Saving..."
               : hasExistingGoal
