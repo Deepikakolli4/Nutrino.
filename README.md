@@ -1,9 +1,5 @@
-# 🥗 Nourish — Personal Calorie Tracker 
-
-<p align="center">
-  <strong>Eat well. Feel your best.</strong>
-</p>
-
+# 🥗 Nourish — Personal Calorie Tracker
+ 
 Nourish is a full-stack nutrition tracking application designed to help users log meals, monitor calorie intake and macronutrients, set personalized health goals, and visualize nutrition trends with AI-powered assistance.
 
 ## 🌐 Live Application
