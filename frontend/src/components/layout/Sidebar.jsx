@@ -7,54 +7,60 @@ import {
   MessageCircle,
   FileUp,
   Citrus,
-  Settings,
   LogOut,
 } from "lucide-react";
-import { logout } from "../../api/auth";
 import { NavLink } from "react-router-dom";
+import { logout } from "../../api/auth";
 
 const navigationItems = [
-  {
-    label: "Dashboard",
-    path: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    label: "Log Meal",
-    path: "/log-meal",
-    icon: Utensils,
-  },
-  {
-    label: "Food Entries",
-    path: "/food-entries",
-    icon: ClipboardList,
-  },
+  { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+  { label: "Log Meal", path: "/log-meal", icon: Utensils },
+  { label: "Food Entries", path: "/food-entries", icon: ClipboardList },
   {
     label: "Nutrition Reports",
     path: "/nutrition-reports",
     icon: ChartNoAxesCombined,
   },
-  {
-    label: "Health Goals",
-    path: "/health-goals",
-    icon: Target,
-  },
-  {
-    label: "AI Nutrition Coach",
-    path: "/ai-coach",
-    icon: MessageCircle,
-  },
-  {
-    label: "Import PDF",
-    path: "/import-pdf",
-    icon: FileUp,
-  },
+  { label: "Health Goals", path: "/health-goals", icon: Target },
+  { label: "AI Nutrition Coach", path: "/ai-coach", icon: MessageCircle },
+  { label: "Import PDF", path: "/import-pdf", icon: FileUp },
 ];
 
+function getUserName() {
+  const token = localStorage.getItem("nourish_token");
+
+  if (!token) return "User";
+
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return "User";
+
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = atob(normalized);
+    const bytes = Uint8Array.from(decoded, (char) => char.charCodeAt(0));
+    const data = JSON.parse(new TextDecoder().decode(bytes));
+
+    return data.email || "User";
+  } catch {
+    return "User";
+  }
+}
+
 export default function Sidebar() {
+  const userName = getUserName();
+
+  const initials =
+    userName
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase() || "U";
+
   return (
     <aside className="sidebar">
-      {/* Brand */}
       <div className="brand">
         <div className="brand-icon">
           <Citrus size={24} strokeWidth={2.2} />
@@ -65,10 +71,7 @@ export default function Sidebar() {
         </span>
       </div>
 
-      {/* Navigation */}
       <nav className="sidebar-nav">
-        {/* <p className="nav-section-title">MENU</p> */}
-
         {navigationItems.map((item) => {
           const Icon = item.icon;
 
@@ -88,19 +91,12 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Bottom section */}
       <div className="sidebar-bottom">
-        {/* <NavLink to="/settings" className="nav-link">
-    <Settings size={19} />
-    <span>Settings</span>
-  </NavLink> */}
-
         <div className="user-profile">
-          <div className="avatar">DK</div>
+          <div className="avatar">{initials}</div>
 
           <div className="user-info">
-            <strong>Your Profile</strong>
-            <span>Personal account</span>
+            <strong>{userName}</strong>
           </div>
 
           <button
