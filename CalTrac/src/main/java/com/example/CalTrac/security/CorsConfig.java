@@ -17,7 +17,7 @@ public class CorsConfig {
 
         configuration.setAllowedOrigins(
                 List.of("http://localhost:3000",
-                "https://nutrino-frontend.vercel.app/dashboard")
+                "https://nutrino-frontend.vercel.app")
         );
 
         configuration.setAllowedMethods(
