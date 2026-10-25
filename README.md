@@ -4,6 +4,7 @@ Nourish is a full-stack nutrition tracking application designed to help users lo
 
 ## 🌐 Live Application
 
+- **Sample Data:** The email address is deepika@example.com, and the password is 12345678.
 - **Live Website:** [Nourish](https://nourish-frontend-phi.vercel.app/)
 - **Backend:** [Nourish API](https://nourish-back.onrender.com)
 - **Demo Video:** [Watch Nourish Demo](https://drive.google.com/file/d/1heC0Fi_AX2x9rBER52hsubuguu_-y5wl/view?usp=sharing)
