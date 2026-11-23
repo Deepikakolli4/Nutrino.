@@ -1,28 +1,46 @@
+
+/* =========================================
+   AI NUTRITION COACH CARD
+========================================= */
+
 .nourish-coach-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   text-align: center;
   padding: 40px 24px;
+  margin: 0;
+
+  min-width: 0;
+  min-height: 100%;
+  box-sizing: border-box;
 }
 
 .nourish-coach-icon {
   width: 76px;
   height: 76px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   border-radius: 24px;
+
   background: linear-gradient(
     145deg,
     rgba(180, 243, 74, 0.18),
     rgba(88, 223, 155, 0.08)
   );
+
   border: 1px solid rgba(180, 243, 74, 0.3);
+
   box-shadow: 0 8px 28px rgba(180, 243, 74, 0.08);
+
   color: #b4f34a;
   margin-bottom: 20px;
+
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease;
@@ -36,11 +54,8 @@
 
 .nourish-coach-card:hover .nourish-coach-icon {
   transform: translateY(-3px);
-  box-shadow: 0 10px 32px rgba(180, 243, 74, 0.18);
-}
 
-.nourish-coach-card {
-  margin: 0 auto 16px;
+  box-shadow: 0 10px 32px rgba(180, 243, 74, 0.18);
 }
 
 .nourish-coach-card h2 {
@@ -50,10 +65,599 @@
 
 .nourish-coach-card p {
   max-width: 540px;
+
   margin: 0 auto 24px;
+
   text-align: center;
+  line-height: 1.6;
 }
 
 .nourish-coach-card .nourish-button {
   align-self: center;
+}
+
+
+/* =========================================
+   TRACKING + AI COACH ROW
+========================================= */
+
+.nourish-coach-row {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 20px;
+  align-items: stretch;
+
+  width: 100%;
+  min-width: 0;
+}
+
+
+/* =========================================
+   DAILY TRACKING CARD
+========================================= */
+
+.nourish-tracking-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.nourish-tracking-heading {
+  display: flex;
+  align-items: center;
+  margin-top: 23px;
+  gap: 10px;
+  color: #b4f34a;
+  margin-bottom: 18px;
+}
+
+.nourish-tracking-heading h2 {
+  color: #f0f4ed;
+
+  font-size: 18px;
+  font-weight: 600;
+
+  margin: 0;
+}
+
+
+/* =========================================
+   CALORIE GOAL STATUS
+========================================= */
+
+.nourish-goal-status {
+  padding: 6px 0 18px;
+}
+
+.nourish-goal-status-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 16px;
+}
+
+.nourish-goal-percentage {
+  font-size: 38px;
+  font-weight: 700;
+
+  color: #b4f34a;
+
+  line-height: 1.2;
+}
+
+.nourish-goal-badge {
+  font-size: 11px;
+  font-weight: 600;
+
+  padding: 7px 12px;
+
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.nourish-goal-badge.progress {
+  color: #b4f34a;
+
+  background: rgba(180, 243, 74, 0.10);
+}
+
+.nourish-goal-badge.reached {
+  color: #58df9b;
+
+  background: rgba(88, 223, 155, 0.12);
+}
+
+.nourish-goal-badge.above {
+  color: #ffbd42;
+
+  background: rgba(255, 189, 66, 0.12);
+}
+
+.nourish-goal-status h3 {
+  font-size: 17px;
+  font-weight: 600;
+
+  color: #f0f4ed;
+
+  margin: 0 0 10px;
+}
+
+.nourish-goal-status p {
+  font-size: 12px;
+  line-height: 1.7;
+
+  color: #929d90;
+
+  margin: 0;
+}
+
+
+/* =========================================
+   CALORIE DETAILS
+========================================= */
+
+.nourish-tracking-remaining {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding: 12px 0;
+
+  border-top: 1px solid #1b2a20;
+
+  font-size: 12px;
+}
+
+.nourish-tracking-remaining span {
+  color: #929d90;
+}
+
+.nourish-tracking-remaining strong {
+  color: #b4f34a;
+
+  text-align: right;
+}
+
+
+/* =========================================
+   WEIGHT TARGET
+========================================= */
+
+.nourish-weight-tracking {
+  border-top: 1px solid #1b2a20;
+
+  margin-top: 20px;
+  padding-top: 18px;
+}
+
+.nourish-weight-heading {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  color: #b4f34a;
+
+  margin-bottom: 14px;
+}
+
+.nourish-weight-heading h3 {
+  color: #f0f4ed;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  margin: 0;
+}
+
+.nourish-weight-values {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+.nourish-weight-values > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+  min-width: 0;
+}
+
+.nourish-weight-values span {
+  font-size: 11px;
+
+  color: #929d90;
+}
+
+.nourish-weight-values strong {
+  font-size: 20px;
+  font-weight: 700;
+
+  color: #f0f4ed;
+
+  white-space: nowrap;
+}
+
+.nourish-weight-values > svg {
+  color: #b4f34a;
+
+  flex-shrink: 0;
+}
+
+.nourish-weight-difference p {
+  font-size: 12px;
+  line-height: 1.5;
+
+  color: #aab5a7;
+
+  margin: 12px 0 0;
+}
+
+.nourish-weight-difference strong {
+  color: #b4f34a;
+}
+
+.nourish-weight-difference .success {
+  color: #b4f34a;
+}
+
+
+/* =========================================
+   GOAL NOT SET
+========================================= */
+
+.nourish-tracking-no-goal p {
+  color: #929d90;
+
+  font-size: 12px;
+  line-height: 1.6;
+
+  margin: 0 0 12px;
+}
+
+
+/* =========================================
+   RESPONSIVE LAYOUT
+========================================= */
+
+/* Tablets and smaller dashboard widths */
+@media (max-width: 1100px) {
+  .nourish-coach-row {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .nourish-coach-card {
+    min-height: 280px;
+  }
+}
+
+/* Mobile and smaller screens */
+@media (max-width: 900px) {
+  .nourish-coach-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .nourish-tracking-card,
+  .nourish-coach-card {
+    width: 100%;
+  }
+}
+
+/* Small mobile screens */
+@media (max-width: 480px) {
+  .nourish-coach-card {
+    padding: 28px 18px;
+  }
+
+  .nourish-coach-icon {
+    width: 64px;
+    height: 64px;
+
+    border-radius: 20px;
+  }
+
+  .nourish-coach-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .nourish-goal-percentage {
+    font-size: 32px;
+  }
+
+  .nourish-weight-values strong {
+    font-size: 17px;
+  }
+}
+
+/* =========================================
+   DAILY TRACKING — REFINED CONTENT STYLING
+   ========================================= */
+
+/* Tracking heading */
+.nourish-tracking-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.nourish-tracking-heading h2 {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+
+/* Calorie status section */
+.nourish-goal-status {
+  padding: 0 0 16px;
+}
+
+.nourish-goal-status-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+/* Percentage */
+.nourish-goal-percentage {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+  color: #b4f34a;
+}
+
+/* Status badge */
+.nourish-goal-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 11px;
+  border-radius: 20px;
+  letter-spacing: 0;
+}
+
+/* Status title */
+.nourish-goal-status h3 {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -0.2px;
+  color: #f0f4ed;
+  margin: 0 0 8px;
+}
+
+/* Status description */
+.nourish-goal-status p {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #929d90;
+  margin: 0;
+}
+
+
+/* Calorie information rows */
+.nourish-tracking-remaining {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 10px 0;
+
+  border-top: 1px solid #1b2a20;
+
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.nourish-tracking-remaining span {
+  font-size: 12px;
+  color: #929d90;
+}
+
+.nourish-tracking-remaining strong {
+  font-size: 12px;
+  font-weight: 600;
+  color: #b4f34a;
+}
+
+
+/* Weight Target divider */
+.nourish-weight-tracking {
+  border-top: 1px solid #1b2a20;
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+/* Weight heading */
+.nourish-weight-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 14px;
+}
+
+.nourish-weight-heading h3 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: #f0f4ed;
+  margin: 0;
+}
+
+
+/* Current and target weight */
+.nourish-weight-values {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.nourish-weight-values > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.nourish-weight-values span {
+  font-size: 11px;
+  font-weight: 400;
+  color: #929d90;
+}
+
+.nourish-weight-values strong {
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.3px;
+  color: #f0f4ed;
+}
+
+.nourish-weight-values > svg {
+  width: 18px;
+  height: 18px;
+  color: #b4f34a;
+  flex-shrink: 0;
+}
+
+
+/* Weight difference message */
+.nourish-weight-difference p {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #929d90;
+  margin: 10px 0 0;
+}
+
+.nourish-weight-difference strong {
+  font-weight: 600;
+  color: #b4f34a;
+}
+
+.nourish-weight-difference .success {
+  color: #58df9b;
+  font-weight: 500;
+}
+
+
+/* No goal state */
+.nourish-tracking-no-goal p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #929d90;
+  margin: 0 0 12px;
+}
+
+
+/* Smaller screens */
+@media (max-width: 480px) {
+  .nourish-goal-percentage {
+    font-size: 28px;
+  }
+
+  .nourish-goal-status h3 {
+    font-size: 14px;
+  }
+
+  .nourish-weight-values strong {
+    font-size: 17px;
+  }
+}
+
+/* Center Daily Tracking content */
+
+.nourish-tracking-card {
+  align-items: center;
+  text-align: center;
+}
+
+/* Center tracking title */
+.nourish-tracking-heading {
+  justify-content: center;
+  width: 100%;
+}
+
+/* Center percentage and badge */
+.nourish-goal-status {
+  width: 100%;
+  text-align: center;
+}
+
+.nourish-goal-status-top {
+  margin: 20px;
+  justify-content: center;
+  gap: 14px;
+}
+
+.nourish-goal-status h3 {
+  text-align: center;
+}
+
+.nourish-goal-status p {
+  text-align: center;
+}
+
+/* Center calorie information */
+.nourish-tracking-remaining {
+  width: 100%;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Center Weight Target heading */
+.nourish-weight-tracking {
+  width: 100%;
+}
+
+.nourish-weight-heading {
+  justify-content: center;
+}
+
+/* Center current and target weights */
+.nourish-weight-values {
+  justify-content: center;
+  gap: 28px;
+}
+
+.nourish-weight-values > div {
+  align-items: center;
+  text-align: center;
+}
+
+/* Center weight difference message */
+.nourish-weight-difference {
+  text-align: center;
+}
+
+.nourish-weight-difference p {
+  text-align: center;
+}
+
+/* Center goal not set content */
+.nourish-tracking-no-goal {
+  text-align: center;
+}
+
+.nourish-tracking-no-goal .nourish-button {
+  margin: 0 auto;
 }

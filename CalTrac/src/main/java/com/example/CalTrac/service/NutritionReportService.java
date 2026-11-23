@@ -44,7 +44,10 @@ public class NutritionReportService {
 
         LocalDate endDate = startDate.plusDays(6);
 
-        List<FoodEntry> entries = foodEntryRepository.findByUserIdAndEntryDateBetween(userId, startDate, endDate);
+        List<FoodEntry> entries = foodEntryRepository.findByUserIdAndEntryDateRange(
+                        userId,
+                        startDate,
+                        endDate.plusDays(1));
 
         Map<String, Map<String, Object>> dailySummaries = new LinkedHashMap<>();
 

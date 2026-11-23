@@ -1,14 +1,5 @@
-
-import { useEffect, useMemo, useState } from "react";
-import {
-  Flame,
-  Target,
-  Scale,
-  Save,
-  LoaderCircle,
-  Activity,
-} from "lucide-react";
-
+import { useEffect, useState } from "react";
+import { LoaderCircle, Save } from "lucide-react";
 import {
   getHealthGoals,
   createHealthGoals,
@@ -16,6 +7,9 @@ import {
 } from "../../api/healthGoals";
 
 import { getFoodEntries } from "../../api/foodEntries";
+import HealthGoalProgress from "./HealthGoalProgress";
+import NutritionTargets from "./NutritionTargets";
+import WeightGoal from "./WeightGoal";
 import "./health-goals.css";
 
 const initialGoals = {
@@ -102,58 +96,6 @@ function calculateIntake(entries) {
       fat: total.fat + (Number(entry.fat) || 0),
     }),
     { ...emptyIntake },
-  );
-}
-
-function ProgressItem({ label, current, target, unit, color }) {
-  const percentage =
-    target > 0 ? (current / target) * 100 : 0;
-
-  const displayedPercentage = Math.round(percentage);
-  const remaining = Math.max(target - current, 0);
-
-  const formatNumber = (value) =>
-    Number(value.toFixed(1)).toLocaleString();
-
-  return (
-    <div className="health-progress-item">
-      <div className="health-progress-label">
-        <span>{label}</span>
-        <strong>{displayedPercentage}%</strong>
-      </div>
-
-      <div
-        className="health-progress-track"
-        role="progressbar"
-        aria-label={`${label} daily goal progress`}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={Math.min(displayedPercentage, 100)}
-      >
-        <div
-          className={`health-progress-fill ${color}`}
-          style={{ width: `${Math.min(percentage, 100)}%` }}
-        />
-      </div>
-
-      <div className="health-progress-values">
-        <strong>
-          {formatNumber(current)} / {formatNumber(target)} {unit}
-        </strong>
-
-        <span>
-          {remaining > 0
-            ? `${formatNumber(remaining)} ${unit} remaining`
-            : "Target reached"}
-        </span>
-      </div>
-
-      {percentage > 100 && (
-        <p className="health-progress-over">
-          Target exceeded by {formatNumber(current - target)} {unit}
-        </p>
-      )}
-    </div>
   );
 }
 
@@ -266,22 +208,6 @@ export default function HealthGoals() {
     };
   }, []);
 
-  const macroCalories = useMemo(() => {
-    return (
-      (Number(goals.protein) || 0) * 4 +
-      (Number(goals.carbs) || 0) * 4 +
-      (Number(goals.fat) || 0) * 9
-    );
-  }, [goals.protein, goals.carbs, goals.fat]);
-
-  const currentWeight = Number(goals.currentWeight) || 0;
-  const targetWeight = Number(goals.targetWeight) || 0;
-  const weightDifference = currentWeight - targetWeight;
-  const weightToGo = Math.abs(weightDifference);
-
-  const calorieDifference =
-    macroCalories - (Number(goals.calories) || 0);
-
   const isSaved =
     savedGoals !== null &&
     Object.keys(goals).every(
@@ -356,92 +282,14 @@ export default function HealthGoals() {
         </div>
       </header>
 
-      {/* YOUR PROGRESS */}
-      <section className="health-progress-card">
-        <div className="health-progress-heading">
-          <span className="health-goal-icon">
-            <Activity size={22} />
-          </span>
-
-          <div>
-            <h2>Your Progress</h2>
-            <p>
-              Today's nutrition compared with your saved goals
-            </p>
-          </div>
-        </div>
-
-        {progressLoading ? (
-          <div className="health-progress-message" role="status">
-            <LoaderCircle
-              size={18}
-              className="health-save-spinner"
-            />
-            Loading today's nutrition...
-          </div>
-        ) : progressError ? (
-          <div className="health-progress-message" role="alert">
-            {progressError}
-          </div>
-        ) : loading ? (
-          <p className="health-progress-message">
-            Loading your saved goals...
-          </p>
-        ) : !hasExistingGoal ? (
-          <div className="health-progress-empty">
-            <Target size={24} />
-            <p>
-              Save your health goals below to start tracking your
-              daily nutrition progress.
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="health-progress-date">
-              Today's logged food
-            </div>
-
-            <div className="health-progress-grid">
-              <ProgressItem
-                label="Calories"
-                current={todayIntake.calories}
-                target={Number(goals.calories) || 0}
-                unit="kcal"
-                color="calories"
-              />
-
-              <ProgressItem
-                label="Protein"
-                current={todayIntake.protein}
-                target={Number(goals.protein) || 0}
-                unit="g"
-                color="protein"
-              />
-
-              <ProgressItem
-                label="Carbohydrates"
-                current={todayIntake.carbs}
-                target={Number(goals.carbs) || 0}
-                unit="g"
-                color="carbs"
-              />
-
-              <ProgressItem
-                label="Fat"
-                current={todayIntake.fat}
-                target={Number(goals.fat) || 0}
-                unit="g"
-                color="fat"
-              />
-            </div>
-
-            <p className="health-progress-footnote">
-              Progress is calculated from your logged food entries
-              for today. 
-            </p>
-          </>
-        )}
-      </section>
+      <HealthGoalProgress
+        goals={goals}
+        hasExistingGoal={hasExistingGoal}
+        loading={loading}
+        todayIntake={todayIntake}
+        progressLoading={progressLoading}
+        progressError={progressError}
+      />
 
       {loading && (
         <div
@@ -470,160 +318,8 @@ export default function HealthGoals() {
           className="health-goals-fieldset"
           disabled={loading || saving}
         >
-          <div className="health-goals-top-grid">
-            <section className="health-goal-card">
-              <div className="health-card-title">
-                <span className="health-goal-icon">
-                  <Flame size={22} />
-                </span>
-                <h2>Daily calorie target</h2>
-              </div>
-
-              <label className="health-field health-calorie-field">
-                <span>Calories (kcal)</span>
-                <input
-                  type="number"
-                  min="1"
-                  max="10000"
-                  step="1"
-                  value={goals.calories}
-                  onChange={(event) =>
-                    updateGoal("calories", event.target.value)
-                  }
-                  required
-                />
-              </label>
-
-              <div className="health-goal-note">
-                Macros below currently sum to{" "}
-                <strong>
-                  {macroCalories.toLocaleString()} kcal
-                </strong>
-                {" — "}
-                {Math.abs(calorieDifference) <= 100
-                  ? "well aligned with your calorie target."
-                  : `${calorieDifference > 0 ? "above" : "below"} your calorie target by ${Math.abs(
-                      calorieDifference,
-                    ).toLocaleString()} kcal.`}
-              </div>
-            </section>
-
-            <section className="health-goal-card">
-              <div className="health-card-title">
-                <span className="health-goal-icon">
-                  <Target size={22} />
-                </span>
-                <h2>Macro targets / day</h2>
-              </div>
-
-              <div className="health-macro-fields">
-                <label className="health-field">
-                  <span>Protein (g)</span>
-                  <input
-                    className="health-protein-input"
-                    type="number"
-                    min="0"
-                    max="1000"
-                    step="any"
-                    value={goals.protein}
-                    onChange={(event) =>
-                      updateGoal("protein", event.target.value)
-                    }
-                    required
-                  />
-                </label>
-
-                <label className="health-field">
-                  <span>Carbs (g)</span>
-                  <input
-                    className="health-carbs-input"
-                    type="number"
-                    min="0"
-                    max="1000"
-                    step="any"
-                    value={goals.carbs}
-                    onChange={(event) =>
-                      updateGoal("carbs", event.target.value)
-                    }
-                    required
-                  />
-                </label>
-
-                <label className="health-field">
-                  <span>Fat (g)</span>
-                  <input
-                    className="health-fat-input"
-                    type="number"
-                    min="0"
-                    max="1000"
-                    step="any"
-                    value={goals.fat}
-                    onChange={(event) =>
-                      updateGoal("fat", event.target.value)
-                    }
-                    required
-                  />
-                </label>
-              </div>
-
-              <p className="health-helper-text">
-                Protein and carbs contribute 4 kcal per gram; fat
-                contributes 9.
-              </p>
-            </section>
-          </div>
-
-          <section className="health-goal-card health-weight-card">
-            <div className="health-card-title">
-              <span className="health-goal-icon">
-                <Scale size={22} />
-              </span>
-              <h2>Weight goal</h2>
-            </div>
-
-            <div className="health-weight-fields">
-              <label className="health-field">
-                <span>Current weight (kg)</span>
-                <input
-                  type="number"
-                  min="1"
-                  max="500"
-                  step="0.1"
-                  value={goals.currentWeight}
-                  onChange={(event) =>
-                    updateGoal("currentWeight", event.target.value)
-                  }
-                  required
-                />
-              </label>
-
-              <label className="health-field">
-                <span>Target weight (kg)</span>
-                <input
-                  type="number"
-                  min="1"
-                  max="500"
-                  step="0.1"
-                  value={goals.targetWeight}
-                  onChange={(event) =>
-                    updateGoal("targetWeight", event.target.value)
-                  }
-                  required
-                />
-              </label>
-
-              <div className="health-weight-summary">
-                <span>
-                  {weightDifference === 0
-                    ? "GOAL REACHED"
-                    : weightDifference > 0
-                      ? "TO LOSE"
-                      : "TO GAIN"}
-                </span>
-                <strong>{weightToGo.toFixed(1)} kg</strong>
-              </div>
-            </div>
-          </section>
+          <NutritionTargets goals={goals} updateGoal={updateGoal} />
+          <WeightGoal goals={goals} updateGoal={updateGoal} />
         </fieldset>
 
         <div

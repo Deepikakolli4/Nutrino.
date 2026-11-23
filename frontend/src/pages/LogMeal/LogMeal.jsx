@@ -1,19 +1,10 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  ArrowLeft,
-  Camera,
-  ImagePlus,
-  Utensils,
-  Clock,
-  CalendarDays,
-  Flame,
-  CheckCircle2,
-  X,
-  Save,
-  Sparkles,
-} from "lucide-react";
+import { Utensils, X } from "lucide-react";
 import api from "../../api/axios";
+import MealPhotoPanel from "./MealPhotoPanel";
+import MealDetailsPanel from "./MealDetailsPanel";
+import MealNutritionPanel from "./MealNutritionPanel";
 
 export default function LogMeal() {
   const navigate = useNavigate();
@@ -52,6 +43,33 @@ export default function LogMeal() {
     setSaved(false);
   }
 
+  function updateNutrientMap(type, key, value) {
+    setForm((previous) => ({
+      ...previous,
+      [type]: {
+        ...previous[type],
+        [key]: value,
+      },
+    }));
+    setSaved(false);
+  }
+
+  function normalizeNutrientMap(values) {
+    if (!values || typeof values !== "object" || Array.isArray(values)) {
+      return {};
+    }
+
+    return Object.fromEntries(
+      Object.entries(values)
+        .filter(([, value]) =>
+          typeof value === "number" ||
+          (typeof value === "string" && value.trim() !== ""),
+        )
+        .map(([key, value]) => [key, Number(value)])
+        .filter(([, value]) => Number.isFinite(value) && value >= 0),
+    );
+  }
+
   async function analyzeFoodImage(file) {
     const data = new FormData();
     data.append("image", file);
@@ -88,8 +106,8 @@ export default function LogMeal() {
         fat: getNumber(result.fat),
         fiber: getNumber(result.fiber),
         sugar: getNumber(result.sugar),
-        vitamins: result.vitamins ?? {},
-        minerals: result.minerals ?? {},
+        vitamins: normalizeNutrientMap(result.vitamins),
+        minerals: normalizeNutrientMap(result.minerals),
         notes: [result.servingDescription, result.notes]
           .filter(Boolean)
           .join("\n"),
@@ -182,10 +200,10 @@ export default function LogMeal() {
       protein: Number(form.protein) || 0,
       carbs: Number(form.carbs) || 0,
       fat: Number(form.fat) || 0,
-      fiber: 0,
-      sugar: 0,
-      vitamins: {},
-      minerals: {},
+      fiber: Number(form.fiber) || 0,
+      sugar: Number(form.sugar) || 0,
+      vitamins: normalizeNutrientMap(form.vitamins),
+      minerals: normalizeNutrientMap(form.minerals),
       entryDate: form.date,
       imageUrl: null,
     };
@@ -209,6 +227,10 @@ export default function LogMeal() {
         protein: "",
         carbs: "",
         fat: "",
+        fiber: "",
+        sugar: "",
+        vitamins: {},
+        minerals: {},
         notes: "",
       });
 
@@ -237,14 +259,6 @@ export default function LogMeal() {
 
   return (
     <main className="log-meal-page">
-      {/* <button
-        type="button"
-        className="log-back-button"
-        onClick={() => navigate("/dashboard")}
-      >
-        <ArrowLeft size={17} />
-        Back to dashboard
-      </button> */}
 
       <header className="log-page-header">
         <div>
@@ -261,26 +275,6 @@ export default function LogMeal() {
           <Utensils size={25} />
         </div>
       </header>
-
-      {saved && (
-        <div className="log-success-message" role="status">
-          <CheckCircle2 size={20} />
-          <div>
-            <strong>Meal details validated!</strong>
-            <span>
-              This is a frontend preview. Your meal has not been saved to the
-              database yet.
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setSaved(false)}
-            aria-label="Dismiss message"
-          >
-            <X size={18} />
-          </button>
-        </div>
-      )}
       {notice && (
         <div className="log-notice" role="status">
           {notice}
@@ -296,253 +290,20 @@ export default function LogMeal() {
 
       <form className="log-meal-form" onSubmit={handleSubmit}>
         <div className="log-meal-layout">
-          <section className="log-panel log-photo-panel">
-            <div className="log-panel-heading">
-              <div>
-                <span className="log-step-label">STEP 01</span>
-                <h2>Add your food photo</h2>
-              </div>
-              <Camera size={20} />
-            </div>
-
-            <p className="log-panel-description">
-              Add a photo to keep a visual record of your meal.
-            </p>
-            {analyzing && (
-              <p className="log-ai-status" role="status">
-                <Sparkles size={16} />
-                Gemini AI is analyzing your image...
-              </p>
-            )}
-
-            {isEstimate && !analyzing && (
-              <p className="log-ai-status">
-                <Sparkles size={16} />
-                AI-generated estimates — review before saving.
-              </p>
-            )}
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="log-file-input"
-              onChange={handlePhoto}
-            />
-
-            {photo ? (
-              <div className="log-photo-preview">
-                <img src={photo.preview} alt="Selected meal" />
-
-                <button
-                  type="button"
-                  className="log-remove-photo"
-                  onClick={removePhoto}
-                  aria-label="Remove photo"
-                >
-                  <X size={18} />
-                </button>
-
-                <div className="log-photo-filename">
-                  <CheckCircle2 size={16} />
-                  <span>{photo.file.name}</span>
-                </div>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className="log-upload-zone"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <div className="log-upload-icon">
-                  <ImagePlus size={27} />
-                </div>
-                <strong>Drop your food photo here</strong>
-                <span>or click to browse your files</span>
-                <span className="log-upload-limit">
-                  PNG, JPG or WEBP · Max 5 MB
-                </span>
-              </button>
-            )}
-
-            <div className="log-ai-note">
-              <Sparkles size={17} />
-              <span>
-                AI-powered food analysis can be connected here to estimate
-                calories and macros from your photo.
-              </span>
-            </div>
-          </section>
-
-          <section className="log-panel log-details-panel">
-            <div className="log-panel-heading">
-              <div>
-                <span className="log-step-label">STEP 02</span>
-                <h2>Meal details</h2>
-              </div>
-              <Utensils size={20} />
-            </div>
-
-            <div className="log-form-grid">
-              <label className="log-field log-field-full">
-                <span>Food name *</span>
-                <input
-                  name="foodName"
-                  value={form.foodName}
-                  onChange={updateField}
-                  placeholder="e.g. Avocado toast"
-                  required
-                />
-              </label>
-
-              <label className="log-field">
-                <span>Meal type *</span>
-                <select
-                  name="mealType"
-                  value={form.mealType}
-                  onChange={updateField}
-                  required
-                >
-                  <option>Breakfast</option>
-                  <option>Lunch</option>
-                  <option>Dinner</option>
-                  <option>Snacks</option>
-                </select>
-              </label>
-
-              <label className="log-field">
-                <span>Serving size *</span>
-                <input
-                  name="servingSize"
-                  value={form.servingSize}
-                  onChange={updateField}
-                  placeholder="e.g. 1 bowl"
-                  required
-                />
-              </label>
-
-              <label className="log-field">
-                <span>
-                  <CalendarDays size={14} /> Date *
-                </span>
-                <input
-                  type="date"
-                  name="date"
-                  value={form.date}
-                  onChange={updateField}
-                  required
-                />
-              </label>
-
-              <label className="log-field">
-                <span>
-                  <Clock size={14} /> Time *
-                </span>
-                <input
-                  type="time"
-                  name="time"
-                  value={form.time}
-                  onChange={updateField}
-                  required
-                />
-              </label>
-            </div>
-          </section>
-
-          <section className="log-panel log-nutrition-panel">
-            <div className="log-panel-heading">
-              <div>
-                <span className="log-step-label">STEP 03</span>
-                <h2>Nutrition information</h2>
-              </div>
-              <Flame size={20} />
-            </div>
-
-            <p className="log-panel-description">
-              Enter the nutrition values for your selected serving.
-            </p>
-
-            <div className="log-nutrition-grid">
-              <label className="log-nutrition-field calories">
-                <span>Calories</span>
-                <div>
-                  <input
-                    type="number"
-                    name="calories"
-                    min="0"
-                    step="1"
-                    value={form.calories}
-                    onChange={updateField}
-                    placeholder="0"
-                    required
-                  />
-                  <span>kcal</span>
-                </div>
-              </label>
-
-              <label className="log-nutrition-field protein">
-                <span>Protein</span>
-                <div>
-                  <input
-                    type="number"
-                    name="protein"
-                    min="0"
-                    step="0.1"
-                    value={form.protein}
-                    onChange={updateField}
-                    placeholder="0"
-                    required
-                  />
-                  <span>g</span>
-                </div>
-              </label>
-
-              <label className="log-nutrition-field carbs">
-                <span>Carbohydrates</span>
-                <div>
-                  <input
-                    type="number"
-                    name="carbs"
-                    min="0"
-                    step="0.1"
-                    value={form.carbs}
-                    onChange={updateField}
-                    placeholder="0"
-                    required
-                  />
-                  <span>g</span>
-                </div>
-              </label>
-
-              <label className="log-nutrition-field fat">
-                <span>Fat</span>
-                <div>
-                  <input
-                    type="number"
-                    name="fat"
-                    min="0"
-                    step="0.1"
-                    value={form.fat}
-                    onChange={updateField}
-                    placeholder="0"
-                    required
-                  />
-                  <span>g</span>
-                </div>
-              </label>
-            </div>
-
-            <label className="log-field log-notes-field">
-              <span>Notes (optional)</span>
-              <textarea
-                name="notes"
-                value={form.notes}
-                onChange={updateField}
-                placeholder="Add ingredients, portion details or anything else..."
-                rows={3}
-              />
-            </label>
-          </section>
+          <MealPhotoPanel
+            analyzing={analyzing}
+            isEstimate={isEstimate}
+            photo={photo}
+            fileInputRef={fileInputRef}
+            handlePhoto={handlePhoto}
+            removePhoto={removePhoto}
+          />
+          <MealDetailsPanel form={form} updateField={updateField} />
+          <MealNutritionPanel
+            form={form}
+            updateField={updateField}
+            updateNutrientMap={updateNutrientMap}
+          />
         </div>
 
         <footer className="log-form-footer">

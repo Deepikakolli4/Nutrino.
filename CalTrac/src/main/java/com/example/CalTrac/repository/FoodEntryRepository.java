@@ -1,4 +1,3 @@
-
 package com.example.CalTrac.repository;
 
 import com.example.CalTrac.model.FoodEntry;
@@ -18,21 +17,50 @@ public interface FoodEntryRepository extends MongoRepository<FoodEntry, String> 
 
     List<FoodEntry> findByUserIdAndMealType(String userId, String mealType);
 
-    List<FoodEntry> findByUserIdAndEntryDateBetween(String userId, LocalDate startDate, LocalDate endDate);
+    List<FoodEntry> findByUserIdAndEntryDateBetween(
+            String userId,
+            LocalDate startDate,
+            LocalDate endDate
+    );
 
     @Query("{ 'userId': ?0, 'entryDate': { $gte: ?1, $lt: ?2 } }")
-    Page<FoodEntry> findByUserIdAndEntryDateBetween(String userId, LocalDate startDate, LocalDate endDateExclusive, Pageable pageable);
+    List<FoodEntry> findByUserIdAndEntryDateRange(
+            String userId,
+            LocalDate startDate,
+            LocalDate endDateExclusive
+    );
 
-    List<FoodEntry> findByUserIdAndMealTypeAndEntryDateBetween(
-            String userId, String mealType, LocalDate startDate, LocalDate endDate);
+    @Query("{ 'userId': ?0, 'entryDate': { $gte: ?1, $lt: ?2 } }")
+    Page<FoodEntry> findByUserIdAndEntryDateRange(
+            String userId,
+            LocalDate startDate,
+            LocalDate endDateExclusive,
+            Pageable pageable
+    );
+
+    @Query("{ 'userId': ?0, 'mealType': ?1, 'entryDate': { $gte: ?2, $lt: ?3 } }")
+    Page<FoodEntry> findByUserIdAndMealTypeAndEntryDateRange(
+            String userId,
+            String mealType,
+            LocalDate startDate,
+            LocalDate endDateExclusive,
+            Pageable pageable
+    );
 
     Page<FoodEntry> findByUserId(String userId, Pageable pageable);
 
-    Page<FoodEntry> findByUserIdAndEntryDate(String userId, LocalDate entryDate, Pageable pageable);
+    Page<FoodEntry> findByUserIdAndEntryDate(
+            String userId,
+            LocalDate entryDate,
+            Pageable pageable
+    );
 
-    Page<FoodEntry> findByUserIdAndMealType(String userId, String mealType, Pageable pageable);
+    Page<FoodEntry> findByUserIdAndMealType(
+            String userId,
+            String mealType,
+            Pageable pageable
+    );
 
-    Page<FoodEntry> findByUserIdAndMealTypeAndEntryDateBetween(
-            String userId, String mealType, LocalDate startDate,
-            LocalDate endDate, Pageable pageable);
+    List<FoodEntry> findByUserIdAndMealTypeAndEntryDateBetween(
+            String userId, String s, LocalDate startDate, LocalDate endDate);
 }

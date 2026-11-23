@@ -1,19 +1,12 @@
 import { useRef, useState } from "react";
-import {
-  FileUp,
-  FileText,
-  X,
-  CheckCircle2,
-  AlertCircle,
-  LoaderCircle,
-  Pencil,
-  Trash2,
-  Upload,
-} from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import {
   previewPdfFoodEntries,
   importPdfFoodEntries,
 } from "../../api/pdfFoodImport";
+import PdfFileSelection from "./PdfFileSelection";
+import PdfEntryReview from "./PdfEntryReview";
+import PdfImportComplete from "./PdfImportComplete";
 import "./ImportPDF.css";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -266,24 +259,33 @@ export default function ImportPDF() {
     try {
       const payload = entries.map(toImportPayload);
       const response = await importPdfFoodEntries(payload);
+      console.log("PDF Import Response:", response);
+
+window.dispatchEvent(new Event("foodEntriesUpdated"));
 
       const importedCount = Number(response.importedCount);
 
       if (!Number.isFinite(importedCount) || importedCount !== entries.length) {
-        throw new Error(
-          "The server did not confirm that all entries were imported. Check your food entries before retrying.",
-        );
-      }
+  throw new Error(
+    "The server did not confirm that all entries were imported. Check your food entries before retrying."
+  );
+}
 
-      setStage("complete");
-      setEntries([]);
-      setEditingIndex(null);
+// Notify Food Entries page
+window.dispatchEvent(new Event("foodEntriesUpdated"));
 
-      showStatus(
-        response.message ||
-          `${importedCount} food entries imported successfully.`,
-        "success",
-      );
+setStage("complete");
+setEntries([]);
+setEditingIndex(null);
+
+// Notify the Food Entries page to reload its data.
+window.dispatchEvent(new Event("foodEntriesUpdated"));
+
+showStatus(
+  response.message ||
+    `${importedCount} food entries imported successfully.`,
+  "success",
+);
     } catch (error) {
       showStatus(error.message);
     } finally {
@@ -327,367 +329,35 @@ export default function ImportPDF() {
         onChange={(event) => validateFile(event.target.files?.[0])}
       />
 
-      {stage === "complete" ? (
-        <section className="import-pdf-complete">
-          <span className="import-pdf-complete-icon">
-            <CheckCircle2 size={34} />
-          </span>
-          <h2>Import complete</h2>
-          <p>Your food diary entries have been saved.</p>
-          <button
-            type="button"
-            className="import-pdf-import-button"
-            onClick={startOver}
-          >
-            <Upload size={18} />
-            Import another PDF
-          </button>
-        </section>
-      ) : (
-        <>
-          {stage === "select" && !file && (
-            <button
-              type="button"
-              className={`import-pdf-dropzone ${isDragging ? "dragging" : ""}`}
-              onClick={() => inputRef.current?.click()}
-              onDragOver={(event) => {
-                event.preventDefault();
-                setIsDragging(true);
-              }}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={handleDrop}
-            >
-              <span className="import-pdf-icon">
-                <FileUp size={42} strokeWidth={2.1} />
-              </span>
-
-              <strong>Drop your PDF here or click to browse</strong>
-
-              <span className="import-pdf-hint">
-                Tabular food diary · PDF up to 10 MB
-              </span>
-            </button>
-          )}
-
-          {file && stage === "select" && (
-            <section className="import-pdf-file-card">
-              <div className="import-pdf-file-info">
-                <span className="import-pdf-file-icon">
-                  <FileText size={25} />
-                </span>
-
-                <div className="import-pdf-file-text">
-                  <strong>{file.name}</strong>
-                  <span>
-                    {(file.size / (1024 * 1024)).toFixed(2)} MB · PDF document
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  className="import-pdf-remove"
-                  aria-label="Remove selected PDF"
-                  onClick={removeFile}
-                  disabled={loading}
-                >
-                  <X size={19} />
-                </button>
-              </div>
-
-              <button
-                type="button"
-                className="import-pdf-import-button"
-                onClick={handlePreview}
-                disabled={loading}
-              >
-                {loading ? (
-                  <LoaderCircle size={18} className="import-pdf-spinner" />
-                ) : (
-                  <FileUp size={18} />
-                )}
-                {loading ? "Parsing PDF..." : "Review entries"}
-              </button>
-            </section>
-          )}
-
-          {stage === "review" && (
-            <section className="import-pdf-review">
-              <div className="import-pdf-review-header">
-                <div>
-                  <p className="import-pdf-eyebrow">REVIEW</p>
-                  <h2>Food entries</h2>
-                  <p>
-                    {entries.length} entries ready to import. Check dates, meal
-                    types, quantities, and nutrition values.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  className="import-pdf-remove"
-                  aria-label="Start over"
-                  onClick={startOver}
-                  disabled={saving}
-                >
-                  <X size={19} />
-                </button>
-              </div>
-
-              <div className="import-pdf-table-wrap">
-                <table className="import-pdf-table">
-                  <thead>
-                    <tr>
-                      <th>Food</th>
-                      <th>Date</th>
-                      <th>Meal</th>
-                      <th>Qty</th>
-                      <th>Calories</th>
-                      <th>Protein</th>
-                      <th>Carbs</th>
-                      <th>Fat</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {entries.map((entry, index) => (
-                      <tr key={entry.id}>
-                        <td>
-                          {editingIndex === index ? (
-                            <input
-                              className="import-pdf-cell-input"
-                              value={entry.foodName}
-                              onChange={(event) =>
-                                updateEntry(
-                                  index,
-                                  "foodName",
-                                  event.target.value,
-                                )
-                              }
-                              aria-label={`Food name for row ${index + 1}`}
-                            />
-                          ) : (
-                            <strong>{entry.foodName || "Unnamed food"}</strong>
-                          )}
-
-                          {editingIndex === index && (
-                            <div className="import-pdf-edit-extra">
-                              <label>
-                                Unit
-                                <input
-                                  className="import-pdf-cell-input"
-                                  value={entry.quantityUnit}
-                                  onChange={(event) =>
-                                    updateEntry(
-                                      index,
-                                      "quantityUnit",
-                                      event.target.value,
-                                    )
-                                  }
-                                />
-                              </label>
-
-                              <label>
-                                Fiber (g)
-                                <input
-                                  className="import-pdf-cell-input"
-                                  type="number"
-                                  min="0"
-                                  step="any"
-                                  value={entry.fiber}
-                                  onChange={(event) =>
-                                    updateEntry(
-                                      index,
-                                      "fiber",
-                                      event.target.value,
-                                    )
-                                  }
-                                />
-                              </label>
-
-                              <label>
-                                Sugar (g)
-                                <input
-                                  className="import-pdf-cell-input"
-                                  type="number"
-                                  min="0"
-                                  step="any"
-                                  value={entry.sugar}
-                                  onChange={(event) =>
-                                    updateEntry(
-                                      index,
-                                      "sugar",
-                                      event.target.value,
-                                    )
-                                  }
-                                />
-                              </label>
-                            </div>
-                          )}
-                        </td>
-
-                        <td>
-                          {editingIndex === index ? (
-                            <input
-                              className="import-pdf-cell-input"
-                              type="date"
-                              value={entry.entryDate}
-                              onChange={(event) =>
-                                updateEntry(
-                                  index,
-                                  "entryDate",
-                                  event.target.value,
-                                )
-                              }
-                            />
-                          ) : (
-                            entry.entryDate
-                          )}
-                        </td>
-
-                        <td>
-                          {editingIndex === index ? (
-                            <select
-                              className="import-pdf-cell-input"
-                              value={entry.mealType}
-                              onChange={(event) =>
-                                updateEntry(
-                                  index,
-                                  "mealType",
-                                  event.target.value,
-                                )
-                              }
-                            >
-                              {MEAL_TYPES.map((type) => (
-                                <option key={type} value={type}>
-                                  {type}
-                                </option>
-                              ))}
-                            </select>
-                          ) : (
-                            entry.mealType
-                          )}
-                        </td>
-
-                        <td>
-                          {editingIndex === index ? (
-                            <div className="import-pdf-quantity-edit">
-                              <input
-                                className="import-pdf-cell-input"
-                                type="number"
-                                min="0.01"
-                                step="any"
-                                value={entry.quantity}
-                                onChange={(event) =>
-                                  updateEntry(
-                                    index,
-                                    "quantity",
-                                    event.target.value,
-                                  )
-                                }
-                              />
-                            </div>
-                          ) : (
-                            `${entry.quantity} ${entry.quantityUnit}`
-                          )}
-                        </td>
-
-                        {["calories", "protein", "carbs", "fat"].map(
-                          (field) => (
-                            <td key={field}>
-                              {editingIndex === index ? (
-                                <input
-                                  className="import-pdf-cell-input"
-                                  type="number"
-                                  min="0"
-                                  step="any"
-                                  value={entry[field]}
-                                  onChange={(event) =>
-                                    updateEntry(
-                                      index,
-                                      field,
-                                      event.target.value,
-                                    )
-                                  }
-                                  aria-label={`${field} for ${entry.foodName}`}
-                                />
-                              ) : (
-                                entry[field]
-                              )}
-                            </td>
-                          ),
-                        )}
-
-                        <td>
-                          <div className="import-pdf-row-actions">
-                            <button
-                              type="button"
-                              className="import-pdf-row-action"
-                              aria-label={
-                                editingIndex === index
-                                  ? "Finish editing row"
-                                  : "Edit row"
-                              }
-                              title={
-                                editingIndex === index
-                                  ? "Finish editing"
-                                  : "Edit entry"
-                              }
-                              onClick={() =>
-                                setEditingIndex(
-                                  editingIndex === index ? null : index,
-                                )
-                              }
-                              disabled={saving}
-                            >
-                              {editingIndex === index ? (
-                                <CheckCircle2 size={17} />
-                              ) : (
-                                <Pencil size={17} />
-                              )}
-                            </button>
-
-                            <button
-                              type="button"
-                              className="import-pdf-row-action danger"
-                              aria-label={`Remove ${entry.foodName}`}
-                              title="Remove entry"
-                              onClick={() => removeEntry(index)}
-                              disabled={saving}
-                            >
-                              <Trash2 size={17} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="import-pdf-review-footer">
-                <span>{entries.length} entries selected</span>
-
-                <button
-                  type="button"
-                  className="import-pdf-import-button"
-                  onClick={handleImport}
-                  disabled={saving || loading || entries.length === 0}
-                >
-                  {saving ? (
-                    <LoaderCircle size={18} className="import-pdf-spinner" />
-                  ) : (
-                    <Upload size={18} />
-                  )}
-                  {saving
-                    ? "Importing entries..."
-                    : `Import ${entries.length} entries`}
-                </button>
-              </div>
-            </section>
-          )}
-        </>
+      {stage === "select" && (
+        <PdfFileSelection
+          file={file}
+          inputRef={inputRef}
+          isDragging={isDragging}
+          setIsDragging={setIsDragging}
+          handleDrop={handleDrop}
+          removeFile={removeFile}
+          handlePreview={handlePreview}
+          loading={loading}
+        />
       )}
+
+      {stage === "review" && (
+        <PdfEntryReview
+          entries={entries}
+          mealTypes={MEAL_TYPES}
+          editingIndex={editingIndex}
+          setEditingIndex={setEditingIndex}
+          updateEntry={updateEntry}
+          removeEntry={removeEntry}
+          startOver={startOver}
+          handleImport={handleImport}
+          saving={saving}
+          loading={loading}
+        />
+      )}
+
+      {stage === "complete" && <PdfImportComplete startOver={startOver} />}
 
       {status && (
         <p

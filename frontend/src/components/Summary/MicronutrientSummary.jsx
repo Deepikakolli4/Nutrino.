@@ -27,7 +27,7 @@ const DISPLAY_UNITS = {
   Fiber: "g",
   Sugar: "g",
   Sodium: "mg",
-  "Vitamin A": "mcg",
+  "Vitamin A": "mg",
   "Vitamin C": "mg",
   Calcium: "mg",
   Iron: "mg",
@@ -95,11 +95,10 @@ function Ring({ nutrient, amount, index }) {
   const radius = 18 + index * 10;
   const circumference = 2 * Math.PI * radius;
 
-  // These are reference comparisons, not personalized goal targets.
-  const percentage =
-    nutrient === "Sugar"
-      ? null
-      : Math.min(100, Math.round((amount / REFERENCE_VALUES[nutrient]) * 100));
+ const percentage = Math.min(
+  100,
+  Math.round((amount / REFERENCE_VALUES[nutrient]) * 100),
+);
 
   const offset =
     percentage === null
@@ -133,12 +132,15 @@ export default function MicronutrientSummary({ report }) {
       unit: DISPLAY_UNITS[name],
       color: COLORS[index],
       index,
-      percentage:
-        name === "Sugar"
-          ? null
-          : Math.min(100, Math.round((amount / REFERENCE_VALUES[name]) * 100)),
+      percentage: Math.min(
+  100,
+  Math.round((amount / REFERENCE_VALUES[name]) * 100),
+),
     };
   });
+  console.log("Micronutrient Report:", report);
+console.log("Minerals:", report?.minerals);
+console.log("Micronutrients:", report?.micronutrients);
 
   return (
     <section className="reports-panel micro-summary">

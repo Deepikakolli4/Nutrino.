@@ -1,9 +1,9 @@
-
 package com.example.CalTrac.controller;
 
 import com.example.CalTrac.model.FoodEntry;
 import com.example.CalTrac.repository.FoodEntryRepository;
 import com.example.CalTrac.service.PdfFoodImportService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,13 +31,15 @@ public class PdfFoodImportController {
     public PdfFoodImportController(
             PdfFoodImportService pdfFoodImportService,
             FoodEntryRepository foodEntryRepository) {
+
         this.pdfFoodImportService = pdfFoodImportService;
         this.foodEntryRepository = foodEntryRepository;
     }
 
-    //PDF Preview
+    // PDF Preview
     @PostMapping(value = "/preview", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> previewPdf(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> previewPdf(
+            @RequestParam("file") MultipartFile file) {
 
         if (file == null || file.isEmpty()) {
             return ResponseEntity.badRequest()
@@ -59,6 +61,11 @@ public class PdfFoodImportController {
 
             List<FoodEntry> entries = pdfFoodImportService.parsePdf(bytes);
 
+            // Normalize meal types for preview
+            entries.forEach(entry ->
+                    entry.setMealType(normalizeMealType(entry.getMealType()))
+            );
+
             return ResponseEntity.ok(Map.of(
                     "totalEntries", entries.size(),
                     "entries", entries,
@@ -68,20 +75,24 @@ public class PdfFoodImportController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", e.getMessage()));
+
         } catch (IOException e) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Unable to read the PDF file."));
         }
     }
 
-    //Import PDF
+    // Import PDF
     @PostMapping("/import")
-    public ResponseEntity<?> importEntries(@RequestBody List<FoodEntry> entries, Authentication authentication) {
+    public ResponseEntity<?> importEntries(
+            @RequestBody List<FoodEntry> entries,
+            Authentication authentication) {
 
         if (authentication == null
                 || !authentication.isAuthenticated()
                 || authentication.getName() == null
                 || authentication.getName().isBlank()) {
+
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Please log in before importing entries."));
         }
@@ -93,28 +104,35 @@ public class PdfFoodImportController {
 
         if (entries.size() > 500) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("error",
-                            "A maximum of 500 entries can be imported at once."));
+                    .body(Map.of(
+                            "error",
+                            "A maximum of 500 entries can be imported at once."
+                    ));
         }
 
         String userId = authentication.getName();
+
         List<FoodEntry> entriesToSave = new ArrayList<>();
 
         for (int i = 0; i < entries.size(); i++) {
+
             FoodEntry entry = entries.get(i);
 
             if (entry == null
                     || entry.getFoodName() == null
                     || entry.getFoodName().isBlank()) {
+
                 return ResponseEntity.badRequest().body(Map.of(
                         "error", "Food name is required for every entry.",
                         "row", i + 1
                 ));
             }
 
-            if (entry.getMealType() == null
-                    || !MEAL_TYPES.contains(
-                    entry.getMealType().trim().toUpperCase())) {
+            String normalizedMealType = normalizeMealType(entry.getMealType());
+
+            if (normalizedMealType == null
+                    || !MEAL_TYPES.contains(normalizedMealType)) {
+
                 return ResponseEntity.badRequest().body(Map.of(
                         "error",
                         "Meal type must be Breakfast, Lunch, Dinner, or Snacks.",
@@ -130,6 +148,7 @@ public class PdfFoodImportController {
                     || !validNumber(entry.getFat())
                     || !validNumber(entry.getFiber())
                     || !validNumber(entry.getSugar())) {
+
                 return ResponseEntity.badRequest().body(Map.of(
                         "error",
                         "Quantity must be positive and nutrition values must be finite and non-negative.",
@@ -144,14 +163,16 @@ public class PdfFoodImportController {
                 ));
             }
 
+            // Prepare entry for saving
             entry.setId(null);
             entry.setUserId(userId);
-            entry.setMealType(normalizeMealType(entry.getMealType()));
+            entry.setMealType(normalizedMealType);
 
             entriesToSave.add(entry);
         }
 
-        List<FoodEntry> savedEntries = foodEntryRepository.saveAll(entriesToSave);
+        List<FoodEntry> savedEntries =
+                foodEntryRepository.saveAll(entriesToSave);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                 "message", "Food entries imported successfully.",
@@ -160,6 +181,7 @@ public class PdfFoodImportController {
         ));
     }
 
+    // Validate PDF file signature
     private boolean isPdf(byte[] bytes) {
         return bytes.length >= 5
                 && bytes[0] == '%'
@@ -169,17 +191,18 @@ public class PdfFoodImportController {
                 && bytes[4] == '-';
     }
 
+    // Validate numeric values
     private boolean validNumber(double value) {
         return Double.isFinite(value) && value >= 0;
     }
 
+    // Normalize meal type to uppercase
     private String normalizeMealType(String mealType) {
-        return switch (mealType.trim().toUpperCase()) {
-            case "BREAKFAST" -> "Breakfast";
-            case "LUNCH" -> "Lunch";
-            case "DINNER" -> "Dinner";
-            case "SNACKS" -> "Snacks";
-            default -> mealType;
-        };
+
+        if (mealType == null || mealType.isBlank()) {
+            return null;
+        }
+
+        return mealType.trim().toUpperCase();
     }
 }

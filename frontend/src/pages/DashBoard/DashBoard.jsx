@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Camera, Plus, Flame, MessageCircle, ArrowRight } from "lucide-react";
+import DashboardHeader from "./DashboardHeader";
+import CaloriesCard from "./CaloriesCard";
+import DashboardInsights from "./DashboardInsights";
 
 import "./DashBoard.css";
 import api from "../../api/axios";
+import { getHealthGoals } from "../../api/healthGoals";
 
 const MACRO_CONFIG = [
   { label: "Protein", key: "protein", color: "#ff7066" },
@@ -19,74 +21,28 @@ function getLocalDate(date = new Date()) {
   return `${year}-${month}-${day}`;
 }
 
-function formatDate() {
-  return new Date()
-    .toLocaleDateString("en-IN", {
-      weekday: "long",
-      day: "2-digit",
-      month: "long",
-    })
-    .toUpperCase();
-}
-
-function getGreeting() {
-  const hour = new Date().getHours();
-
-  if (hour < 12) return "morning";
-  if (hour < 17) return "afternoon";
-  return "evening";
-}
 
 function getPageContent(responseData) {
   if (Array.isArray(responseData)) {
     return responseData;
   }
 
-  return Array.isArray(responseData?.content) ? responseData.content : [];
-}
-
-function MacroProgress({ label, consumed, color }) {
-  return (
-    <div className="nourish-macro">
-      <div className="nourish-macro-heading">
-        <span>{label}</span>
-        <span>{Math.round(consumed)}g</span>
-      </div>
-
-      <div className="nourish-progress-track">
-        <div
-          className="nourish-progress-fill"
-          style={{
-            width: consumed > 0 ? "100%" : "0%",
-            background: color,
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function SummaryCard({ icon: Icon, label, children }) {
-  return (
-    <article className="nourish-summary-card">
-      <div className="nourish-summary-label">
-        <Icon size={18} />
-        <span>{label}</span>
-      </div>
-
-      <div className="nourish-summary-value">{children}</div>
-    </article>
-  );
+  return Array.isArray(responseData?.content)
+    ? responseData.content
+    : [];
 }
 
 export default function Dashboard() {
-  const navigate = useNavigate();
-
   const [todayEntries, setTodayEntries] = useState([]);
   const [weeklyEntries, setWeeklyEntries] = useState([]);
+
+  const [healthGoals, setHealthGoals] = useState(null);
+  const [goalsLoading, setGoalsLoading] = useState(true);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Load today's and weekly food entries.
   useEffect(() => {
     let cancelled = false;
 
@@ -100,6 +56,7 @@ export default function Dashboard() {
 
         const weekStart = new Date(today);
         weekStart.setDate(today.getDate() - 6);
+
         const startDate = getLocalDate(weekStart);
 
         const [todayResponse, weeklyResponse] = await Promise.all([
@@ -147,36 +104,74 @@ export default function Dashboard() {
     };
   }, []);
 
+  // Load saved Health Goals.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadHealthGoals() {
+      setGoalsLoading(true);
+
+      try {
+        const savedGoals = await getHealthGoals();
+
+        if (!cancelled) {
+          setHealthGoals(savedGoals);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setHealthGoals(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setGoalsLoading(false);
+        }
+      }
+    }
+
+    loadHealthGoals();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Calculate today's calories.
   const consumedCalories = useMemo(
     () =>
       todayEntries.reduce(
-        (total, entry) => total + (Number(entry.calories) || 0),
+        (total, entry) =>
+          total + (Number(entry.calories) || 0),
         0,
       ),
     [todayEntries],
   );
 
+  // Calculate macros.
   const macros = useMemo(
     () =>
       MACRO_CONFIG.map((macro) => ({
         ...macro,
         consumed: todayEntries.reduce(
-          (total, entry) => total + (Number(entry[macro.key]) || 0),
+          (total, entry) =>
+            total + (Number(entry[macro.key]) || 0),
           0,
         ),
       })),
     [todayEntries],
   );
 
+  // Calculate 7-day average.
   const averageCalories = useMemo(() => {
     const dailyTotals = {};
 
     for (const entry of weeklyEntries) {
       const date = entry.entryDate;
+
       if (!date) continue;
 
       dailyTotals[date] =
-        (dailyTotals[date] || 0) + (Number(entry.calories) || 0);
+        (dailyTotals[date] || 0) +
+        (Number(entry.calories) || 0);
     }
 
     const totalCalories = Object.values(dailyTotals).reduce(
@@ -184,9 +179,12 @@ export default function Dashboard() {
       0,
     );
 
-    // Include days with zero entries in the seven-day average.
     return Math.round(totalCalories / 7);
   }, [weeklyEntries]);
+
+  // Health Goals values.
+  const dailyCalorieGoal =
+    Number(healthGoals?.dailyCalorieTarget) || 0;
 
   if (loading) {
     return (
@@ -213,132 +211,22 @@ export default function Dashboard() {
 
   return (
     <main className="nourish-dashboard">
-      <header className="nourish-dashboard-header">
-        <div>
-          <p className="nourish-date">{formatDate()}</p>
-
-          <h1>Good {getGreeting()}</h1>
-
-          <p className="nourish-subtitle">
-            Track your daily nutrition and build healthy habits.
-          </p>
-        </div>
-
-        <div className="nourish-header-actions">
-          <button
-            className="nourish-button secondary"
-            onClick={() => navigate("/log-meal?mode=photo")}
-          >
-            <Camera size={18} />
-            Snap a meal
-          </button>
-
-          <button
-            className="nourish-button primary"
-            onClick={() => navigate("/log-meal")}
-          >
-            <Plus size={19} />
-            Log meal
-          </button>
-        </div>
-      </header>
+      <DashboardHeader />
 
       <section className="nourish-dashboard-grid">
-        <article className="nourish-card nourish-calorie-card">
-          <h2 className="nourish-today-title">Today's calories</h2>
-
-          <div
-            className="nourish-calorie-ring"
-            role="img"
-            aria-label={`${Math.round(
-              consumedCalories,
-            )} calories consumed today`}
-          >
-            <svg
-              viewBox="0 0 200 200"
-              className="nourish-ring-svg"
-              aria-hidden="true"
-            >
-              <defs>
-                <linearGradient
-                  id="calorieGradient"
-                  x1="0"
-                  y1="0"
-                  x2="1"
-                  y2="1"
-                >
-                  <stop offset="0%" stopColor="#b4f34a" />
-                  <stop offset="100%" stopColor="#58df9b" />
-                </linearGradient>
-              </defs>
-
-              <circle className="nourish-ring-track" cx="100" cy="100" r="84" />
-
-              <circle
-                className="nourish-ring-value"
-                cx="100"
-                cy="100"
-                r="84"
-                stroke="url(#calorieGradient)"
-                strokeDasharray={`${consumedCalories > 0 ? 1 : 0} ${
-                  2 * Math.PI * 84
-                }`}
-              />
-            </svg>
-
-            <div className="nourish-ring-center">
-              <strong>{Math.round(consumedCalories).toLocaleString()}</strong>
-              <span>kcal consumed</span>
-            </div>
-          </div>
-
-          <div className="nourish-macros">
-            {macros.map((macro) => (
-              <MacroProgress key={macro.label} {...macro} />
-            ))}
-          </div>
-        </article>
-
-        <div className="nourish-dashboard-right">
-          <section className="nourish-summary-grid">
-            <SummaryCard icon={Flame} label="7-day average">
-              {averageCalories.toLocaleString()} <small>kcal/day</small>
-            </SummaryCard>
-
-            <SummaryCard icon={Plus} label="Food entries today">
-              {todayEntries.length} <small>entries</small>
-            </SummaryCard>
-            <SummaryCard icon={Flame} label="Today's protein">
-              {Math.round(
-                todayEntries.reduce(
-                  (total, entry) => total + (Number(entry.protein) || 0),
-                  0,
-                ),
-              )}
-              <small>g consumed</small>
-            </SummaryCard>
-          </section>
-
-          <article className="nourish-card nourish-coach-card">
-            <div className="nourish-coach-icon">
-              <MessageCircle size={36} />
-            </div>
-
-            <h2>Ask your nutrition coach</h2>
-
-            <p>
-              Get guidance about your food choices, calorie intake, and
-              nutrition habits using your logged entries.
-            </p>
-
-            <button
-              className="nourish-button secondary"
-              onClick={() => navigate("/ai-coach")}
-            >
-              Open chat <ArrowRight size={16} />
-            </button>
-          </article>
-        </div>
+        <CaloriesCard
+          consumedCalories={consumedCalories}
+          dailyCalorieGoal={dailyCalorieGoal}
+          macros={macros}
+        />
+        <DashboardInsights
+          averageCalories={averageCalories}
+          todayEntries={todayEntries}
+          healthGoals={healthGoals}
+          goalsLoading={goalsLoading}
+          consumedCalories={consumedCalories}
+          dailyCalorieGoal={dailyCalorieGoal}
+        />
       </section>
     </main>
   );

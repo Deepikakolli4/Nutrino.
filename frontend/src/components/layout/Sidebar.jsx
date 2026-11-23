@@ -16,11 +16,7 @@ const navigationItems = [
   { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { label: "Log Meal", path: "/log-meal", icon: Utensils },
   { label: "Food Entries", path: "/food-entries", icon: ClipboardList },
-  {
-    label: "Nutrition Reports",
-    path: "/nutrition-reports",
-    icon: ChartNoAxesCombined,
-  },
+  { label: "Nutrition Reports",path: "/nutrition-reports", icon: ChartNoAxesCombined },
   { label: "Health Goals", path: "/health-goals", icon: Target },
   { label: "AI Nutrition Coach", path: "/ai-coach", icon: MessageCircle },
   { label: "Import PDF", path: "/import-pdf", icon: FileUp },

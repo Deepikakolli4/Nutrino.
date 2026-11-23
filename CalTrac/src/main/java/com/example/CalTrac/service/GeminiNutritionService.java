@@ -43,19 +43,46 @@ public class GeminiNutritionService {
                   "fat": 0,
                   "fiber": 0,
                   "sugar": 0,
-                  "vitamins": {},
-                  "minerals": {},
+                  "vitamins": {
+                    "vitaminA": null,
+                    "vitaminC": null,
+                    "vitaminD": null,
+                    "vitaminE": null,
+                    "vitaminK": null,
+                    "vitaminB1": null,
+                    "vitaminB2": null,
+                    "vitaminB6": null,
+                    "vitaminB12": null,
+                    "folate": null
+                  },
+                  "minerals": {
+                    "calcium": null,
+                    "iron": null,
+                    "sodium": null,
+                    "potassium": null,
+                    "magnesium": null,
+                    "zinc": null,
+                    "phosphorus": null
+                  },
                   "isEstimate": true,
                   "servingDescription": "string",
                   "notes": "string"
                 }
 
-                Use grams for macronutrients and milligrams or
-                micrograms as appropriate for micronutrients.
-                Use numeric values for nutrient amounts.
-                If a value cannot be determined, return null for that
-                value rather than inventing a precise measurement.
-                Do not treat missing values as zero.
+                Use the exact micronutrient keys shown above and include both objects.
+                Report amounts for the same serving or visible portion as calories.
+                Use grams for macronutrients. Use micrograms for vitaminA, vitaminD,
+                vitaminK, vitaminB12, and folate. Use milligrams for all other
+                vitamins listed above and all listed minerals.
+
+                For a food photo, fill in reasonable micronutrient estimates for
+                identifiable foods and set isEstimate to true. For a nutrition
+                label, use displayed amounts and convert units where possible.
+                If the label gives only a percentage and the reference intake
+                cannot be established, return null for that nutrient.
+
+                Use numbers without unit suffixes. Return null for unavailable
+                values and use zero only when a zero amount is supported.
                 Do not include Markdown fences around the JSON.
                 """;
 
